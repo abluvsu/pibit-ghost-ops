@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  ghost_underwriter:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    env_file:
+      - .env.example # Optional fallback if .env doesn't exist

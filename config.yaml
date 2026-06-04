@@ -1,0 +1,19 @@
+# Business Rules Configuration
+business_rules:
+  red_pincodes:
+    - '400001'
+    - '600001'
+    - '700001'
+  max_prior_claims: 2
+  blacklisted_brokers:
+    - 'apex risk solutions'
+    - 'shadow creek brokers'
+  high_risk_industries:
+    - 'construction'
+    - 'transportation'
+    - 'manufacturing'
+
+# Engine Configuration
+engine:
+  use_mock_llm_fallback: true
+  database_name: "triage_mis.db"

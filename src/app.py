@@ -1,8 +1,9 @@
 import streamlit as st
 from engine import GhostUnderwriterEngine
 import os
+import yaml
 
-st.set_page_config(page_title="Ghost Underwriter", page_icon="👻", layout="wide")
+st.set_page_config(page_title="Ghost Underwriter (v4 Enterprise)", page_icon="👻", layout="wide")
 
 # Initialize Engine
 @st.cache_resource
@@ -11,15 +12,14 @@ def get_engine():
 
 engine = get_engine()
 
-st.title("👻 Ghost Underwriter: Triage Engine")
-st.markdown("Automated intake and triage for commercial insurance submissions.")
+st.title("👻 Ghost Underwriter: Enterprise Triage (v4)")
+st.markdown("Automated intake and triage for commercial insurance submissions. Built for scale.")
 
-tab1, tab2 = st.tabs(["📧 Triage Engine", "🗄️ MIS Database & Reporting"])
+tab1, tab2, tab3 = st.tabs(["📧 Triage Engine", "🗄️ MIS Database", "⚙️ System Logs & Config"])
 
 with tab1:
     st.subheader("Process Incoming Broker Email")
     
-    # Pre-load dummy examples from data/inbox if they exist
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     inbox_dir = os.path.join(base_dir, "data", "inbox")
     examples = ["Custom Email"]
@@ -40,13 +40,13 @@ with tab1:
     
     if st.button("Run Triage Engine", type="primary"):
         if email_input:
-            with st.spinner("Extracting structured data via Pydantic LLM Mock..."):
+            with st.spinner("Extracting structured data (OpenAI / Pydantic Mock)..."):
                 extracted_data = engine.simulate_llm_extraction(email_input)
                 
             st.markdown("### 🧩 Structured Data Extracted")
             st.json(extracted_data.model_dump())
             
-            with st.spinner("Running Business Rules..."):
+            with st.spinner("Running Enterprise Business Rules..."):
                 decision, reason, status = engine.triage_submission(extracted_data)
                 engine.log_to_mis(extracted_data, decision, reason, status)
                 engine.generate_eod_report()
@@ -88,3 +88,17 @@ with tab2:
                 file_name="EOD_Reconciliation.csv",
                 mime="text/csv"
             )
+
+with tab3:
+    st.subheader("System Logs (Observability)")
+    log_path = os.path.join(base_dir, "logs", "ghost_ops.log")
+    if os.path.exists(log_path):
+        with open(log_path, "r") as f:
+            logs = f.readlines()
+            st.code("".join(logs[-20:]), language="text")
+            
+    st.subheader("Active YAML Configuration")
+    config_path = os.path.join(base_dir, "config.yaml")
+    if os.path.exists(config_path):
+        with open(config_path, "r") as f:
+            st.code(f.read(), language="yaml")
